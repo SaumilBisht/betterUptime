@@ -33,7 +33,8 @@ app.post("/status/:websiteId",authMiddleware,async(req,res)=>{
 
   const website=await prisma.website.findFirst({
     where:{
-      id:req.params.websiteId
+      id:req.params.websiteId,
+      userId:req.userId
     },
     include:{
       ticks:{
