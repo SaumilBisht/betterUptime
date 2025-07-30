@@ -29,8 +29,28 @@ app.post("/website",authMiddleware,async(req,res)=>{
   })
 })
 
-app.post("/status/:websiteId",authMiddleware,(req,res)=>{
+app.post("/status/:websiteId",authMiddleware,async(req,res)=>{
 
+  const website=await prisma.website.findFirst({
+    where:{
+      id:req.params.websiteId
+    },
+    include:{
+      ticks:{
+        orderBy:[{
+          createdAt:"desc"
+        }],
+        take:1
+      }
+
+    }
+  })
+
+  if(!website) return res.status(409).send("No found website");
+
+  return res.json({
+    website
+  })
 })
 
 app.post("/user/signup",async(req,res)=>{
