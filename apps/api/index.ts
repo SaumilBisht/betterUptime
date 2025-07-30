@@ -2,10 +2,11 @@ import express from "express"
 import { prisma } from "db/client"
 import { AuthInput } from "./types";
 import jwt from "jsonwebtoken"
+import { authMiddleware } from "./middleware";
 
 const app=express();
 app.use(express.json());
-app.post("/website",async(req,res)=>{
+app.post("/website",authMiddleware,async(req,res)=>{
 
   if(!req.body.url)
   {
@@ -17,6 +18,7 @@ app.post("/website",async(req,res)=>{
   const website=await prisma.website.create({
     data:
     {
+      userId:req.userId!,
       url:req.body.url,
       timeAdded: new Date()
     }
@@ -27,7 +29,7 @@ app.post("/website",async(req,res)=>{
   })
 })
 
-app.post("/status/:websiteId",(req,res)=>{
+app.post("/status/:websiteId",authMiddleware,(req,res)=>{
 
 })
 
