@@ -1,23 +1,20 @@
-import {createClient} from "redis"
 import {prisma} from "db/client"
-
-setInterval(main,3*60*1000)
+import { xAddBulk } from "redisstream/client";
 
 async function main(){
 
-  let websites:{url:string,id:string}[]=await prisma.website.findMany();
+  let websites=await prisma.website.findMany({
+    select:{
+      url:true,
+      id:true
+    }
+  });
 
-  const client=await createClient()
-      .on("error",(err)=>console.log("redis error",err))
-      .connect();
-
-  for(const website of websites)
-  {
-    const res=await client.xAdd('betteruptime:websites','*',{
-      url:website.url,
-      id:website.id
-    })
-    console.log(res);
-  }
-  client.quit();
+  await xAddBulk(websites);
 }
+
+setInterval(()=>{
+  main()
+},3*60*1000)
+
+main()

@@ -1,48 +1,66 @@
-import {createClient} from "redis"
+import { xReadGroup,xAckBulk } from "redisstream/client";
 import {prisma} from "db/client"
 import axios from "axios";
-main();
+
+const REGION_ID = process.env.REGION_ID!;
+const WORKER_ID = process.env.WORKER_ID!;
+
+if (!REGION_ID) {
+  throw new Error("Region not provided");
+}
+
+if (!WORKER_ID) {
+  throw new Error("Region not provided");
+}
 
 async function main()
 {
-  const client=await createClient()
-      .on("error",(err)=>console.log("redis error",err))
-      .connect();
   while(1)
   {
-    const res=await client.xReadGroup('india','india-1',{
-      key:"betteruptime:websites",
-      id:">"
-    },{
-      COUNT:10
-    })
-    
-    
-    if(!res)return;
-    //@ts-ignore
-    let websites_to_track=res[0].messages;
+    const response = await xReadGroup(REGION_ID, WORKER_ID); //messages array returns
+    if (!response) continue;
 
-    websites_to_track.forEach(async(website: { message: { url: string; id: string; }; })=>{
-      let startTime=Date.now;
+    let promises = response.map(({message}) => fetchWebsite(message.url, message.id))
 
-      await axios.get(website.message.url)
-            .then(()=>{
-              prisma.website_tick.create({
+    await Promise.all(promises);
+    console.log(promises.length);
 
-                //@ts-ignore
-                status:"UP",
-                //@ts-ignore
-                response_time_ms: Date.now()-startTime,
-                website_id:website.message.id,
-                region_id:"india"
-              })
-            })
-    })
-    
-
-
-
+    xAckBulk(REGION_ID, response.map(({id}) => id));//redis message id acknowledge
+  
   }
-
-  client.destroy();
 }
+async function fetchWebsite(url: string, websiteId: string) //receives url and db id
+{
+  // hits url and puts it in status DB
+  return new Promise<void>((resolve, reject) => {
+  const startTime = Date.now();
+
+  axios.get(url)
+    .then(async () => { 
+      const endTime = Date.now();
+      await prisma.website_tick.create({
+          data: {
+              response_time_ms: endTime - startTime,
+              status: "Up",
+              region_id: REGION_ID,
+              website_id: websiteId
+          }
+      })
+      resolve()
+    })
+    .catch(async () => {
+      const endTime = Date.now();
+      await prisma.website_tick.create({
+          data: {
+              response_time_ms: endTime - startTime,
+              status: "Down",
+              region_id: REGION_ID,
+              website_id: websiteId
+          }
+      })
+      resolve()
+    })
+  })
+}
+
+main();

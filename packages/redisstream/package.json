@@ -1,7 +1,10 @@
 {
-  "name": "pusher",
+  "name": "redisstream",
   "module": "index.ts",
   "type": "module",
+  "exports":{
+    "./client":"./index.ts"
+  },
   "private": true,
   "devDependencies": {
     "@types/bun": "latest"
@@ -10,9 +13,6 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "axios": "^1.11.0",
-    "redis": "^5.7.0",
-    "db":"*",
-    "redisstream":"*"
+    "redis": "^5.7.0"
   }
 }
