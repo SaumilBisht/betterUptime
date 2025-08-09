@@ -41,7 +41,7 @@ app.post("/status/:websiteId",authMiddleware,async(req,res)=>{
         orderBy:[{
           createdAt:"desc"
         }],
-        take:1
+        take:10
       }
 
     }
@@ -51,6 +51,18 @@ app.post("/status/:websiteId",authMiddleware,async(req,res)=>{
 
   return res.json({
     website
+  })
+})
+
+app.get("/websites",authMiddleware,async(req,res)=>{
+  const websites=await prisma.website.findMany({
+    where:{
+      userId:req.userId
+    }
+  })
+
+  return res.json({
+    websites
   })
 })
 

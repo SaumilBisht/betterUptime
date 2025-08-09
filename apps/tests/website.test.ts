@@ -26,6 +26,44 @@ describe("Website gets created", () => {
 
 describe("Can fetch website", () => {
     let token1: string, userId1: string;
+
+    beforeAll(async () => {
+        const user1 = await createUser();
+        token1 = user1.jwt;
+        userId1 = user1.id;
+    });
+
+    it("Is able to fetch all website that the user created", async () => {
+        await axios.post(`${BACKEND_URL}/website`, {
+            url: "https://google.com/"
+        }, {
+            headers: 
+            {
+                Authorization: token1
+            }
+        })
+        await axios.post(`${BACKEND_URL}/website`, {
+            url: "https://facebook.com/"
+        }, {
+            headers: 
+            {
+                Authorization: token1
+            }
+        })
+
+        const response = await axios.get(`${BACKEND_URL}/websites`,
+        {
+            headers: {
+                Authorization: token1
+            }
+        })
+        expect(response.data.websites.length==2,"Incorrect website length")
+    })
+
+})
+
+describe("Can fetch website", () => {
+    let token1: string, userId1: string;
     let token2: string, userId2: string;
 
     beforeAll(async () => {
