@@ -3,9 +3,11 @@ import { prisma } from "db/client"
 import { AuthInput } from "./types";
 import jwt from "jsonwebtoken"
 import { authMiddleware } from "./middleware";
+import cors from "cors"
 
 const app=express();
 app.use(express.json());
+app.use(cors());
 app.post("/website",authMiddleware,async(req,res)=>{
 
   if(!req.body.url)
