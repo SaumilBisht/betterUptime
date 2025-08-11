@@ -1,12 +1,21 @@
-import { Button } from "@/components/ui/button"
+import {Header} from "../components/Header"
+import {Footer} from "../components/Footer"
+import {Features} from "../components/Features"
+import {Pricing} from "../components/Pricing"
+import {Hero} from "../components/Hero"
+import {Testimonials} from "../components/Testimonials"
+
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 text-4xl">
-      Hello World
-      <div>
-        THis is Just testing of frontend 
-      </div>
-      <Button>Click me</Button>
+    <div >
+
+      <Header />
+      <Hero />
+      <Features />
+      <Testimonials />
+      <Pricing />
+      <Footer />
+      
     </div>
   );
 }
