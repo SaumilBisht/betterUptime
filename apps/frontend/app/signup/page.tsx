@@ -1,15 +1,19 @@
 "use client"
 import React, { useState } from 'react';
 import { Monitor, ArrowRight, Mail, Check } from 'lucide-react';
+import { BACKEND_URL } from '@/lib/utils';
+import axios from 'axios';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitted(true);
-    
+    await axios.post(`${BACKEND_URL}/user/signup`,{
+      email
+    })
   };
 
   if (isSubmitted) {

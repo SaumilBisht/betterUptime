@@ -5,7 +5,9 @@ import { WebsiteTable } from '../../components/WebsiteTable';
 import { AddWebsiteModal } from '../../components/AddWebsiteModal';
 import { Website } from '../../lib/types';
 
-export default function Dashboard() {
+export default function Dashboard() 
+{
+  //check cookies otherwise send Not signed in
   const [websites, setWebsites] = useState<Website[]>([
     {
       id: '1',

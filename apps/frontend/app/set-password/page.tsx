@@ -1,5 +1,5 @@
 "use client";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from 'react';
 import { Monitor, ArrowRight, Mail, Check } from 'lucide-react';
 import { BACKEND_URL } from "@/lib/utils";
@@ -9,6 +9,7 @@ export default function SetPasswordPage() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
   const [password, setPassword] = useState('');
+  const router=useRouter();
 
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
@@ -16,6 +17,7 @@ export default function SetPasswordPage() {
       email,
       password
     })
+    router.push("/dashboard")
   };
   
   if(!email)
@@ -50,7 +52,7 @@ export default function SetPasswordPage() {
         <div className="bg-gray-900 rounded-xl border border-gray-800 p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                 Enter Password
               </label>
               <div className="relative">

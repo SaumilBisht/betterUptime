@@ -23,8 +23,6 @@ export function Header() {
                 </button>
               </div>
               <a href="#" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">Docs</a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">Blog</a>
               <a href="#" className="text-gray-300 hover:text-white transition-colors">Changelog</a>
             </nav>
           </div>
