@@ -3,14 +3,16 @@ import jwt from "jsonwebtoken";
 
 export function authMiddleware(req:Request,res:Response,next:NextFunction){
 
-  const header=req.headers.authorization;
-  try{
-    let data=jwt.verify(header!,process.env.JWT_PASS!)
-    req.userId=data.sub as string;
-    next();
-  }
-  catch(e)
+  const token = req.cookies.auth;
+  if (!token) return res.status(401).send("Not signed in");
+
+  try 
   {
-    res.status(403).send("");
+    const payload = jwt.verify(token, process.env.JWT_PASS!);//@ts-ignore
+    req.userId = payload.userId as string; 
+    next();
+  } catch (err) {
+    return res.status(401).send("Invalid or expired token");
   }
 }
+

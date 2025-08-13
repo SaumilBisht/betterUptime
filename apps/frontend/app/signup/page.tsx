@@ -8,8 +8,8 @@ export default function Signup() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would send the email
     setIsSubmitted(true);
+    
   };
 
   if (isSubmitted) {
@@ -52,7 +52,6 @@ export default function Signup() {
           <p className="text-gray-400">Start monitoring your applications today</p>
         </div>
 
-        {/* Signup Form */}
         <div className="bg-gray-900 rounded-xl border border-gray-800 p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
