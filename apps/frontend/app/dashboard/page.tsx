@@ -6,40 +6,12 @@ import { AddWebsiteModal } from '../../components/AddWebsiteModal';
 import { Website } from '../../lib/types';
 import axios from 'axios';
 import { DashboardHeader } from '@/components/DashboardHeader';
+import { BACKEND_URL } from '@/lib/utils';
 
 export default function Dashboard() 
 {
   const [isAuthenticated,setIsAuthenticated]=useState(false);
   const [authChecked,setAuthChecked]=useState(false);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        await axios.get("/auth/validate", { withCredentials: true });
-        setIsAuthenticated(true);
-      } catch (err) {
-        setIsAuthenticated(false);
-      } finally {
-        setAuthChecked(true);
-      }
-    };
-    checkAuth();
-  }, []);
-  if (!authChecked) {
-    return (
-      <div>
-        <DashboardHeader isAuthenticated={isAuthenticated}/>
-        <div className="h-screen w-screen bg-black text-white p-6">Checking authentication...</div>
-      </div>
-    );
-  }
-  if (!isAuthenticated) {
-    return (
-    <div>
-      <DashboardHeader isAuthenticated={isAuthenticated}/>
-      <div className="h-screen w-screen bg-black text-white p-6">Not signed in. Please sign in first.</div>
-    </div>);
-  }
   const [websites, setWebsites] = useState<Website[]>([
     {
       id: '1',
@@ -68,6 +40,35 @@ export default function Dashboard()
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await axios.get(`${BACKEND_URL}/auth/validate`, { withCredentials: true });
+        setIsAuthenticated(true);
+      } catch (err) {
+        setIsAuthenticated(false);
+      } finally {
+        setAuthChecked(true);
+      }
+    };
+    checkAuth();
+  }, []);
+  if (!authChecked) {
+    return (
+      <div>
+        <DashboardHeader isAuthenticated={isAuthenticated}/>
+        <div className="h-screen w-screen bg-black text-white p-6">Checking authentication...</div>
+      </div>
+    );
+  }
+  if (!isAuthenticated) {
+    return (
+    <div>
+      <DashboardHeader isAuthenticated={isAuthenticated}/>
+      <div className="h-screen w-screen bg-black text-white p-6">Not signed in. Please sign in first.</div>
+    </div>);
+  }
 
   const addWebsite = (website: Omit<Website, 'id'>) => {
     const newWebsite: Website = {

@@ -9,10 +9,15 @@ import crypto from "crypto"
 import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs"
 import {addMinutes} from "date-fns"
-
+import cookieParser from "cookie-parser";
 const app=express();
+app.use(cookieParser())
 app.use(express.json());
-app.use(cors());
+
+app.use(cors({
+  origin: "http://localhost:3000",//change after prod
+  credentials: true
+}));
 
 app.post("/user/signup",async(req,res)=>{
   const data=SignUpInput.safeParse(req.body);
@@ -22,6 +27,7 @@ app.post("/user/signup",async(req,res)=>{
       error:"Invalid inputs"
     })
   }
+  console.log("reached 1")
   const {email}=req.body;
   try{
     const existingUser = await prisma.user.findUnique({
@@ -50,6 +56,7 @@ app.post("/user/signup",async(req,res)=>{
         tokenExpiry: addMinutes(new Date(), 30),
       },
     });
+    console.log("reached 2")
   
     const transporter = nodemailer.createTransport({
       service: "Gmail",
@@ -58,6 +65,8 @@ app.post("/user/signup",async(req,res)=>{
         pass: process.env.USER_PASSWORD,  
       },
     });
+    console.log("reached 3")
+    console.log(process.env.USER_EMAIL)
     
     const verifyUrl = `${process.env.BACKEND_URL}/verify?token=${token}&email=${email}`;
     
@@ -66,8 +75,10 @@ app.post("/user/signup",async(req,res)=>{
       subject: "Verify your BetterUptime account",
       html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email. Link expires in 30 minutes.</p>`,
     });
+    console.log("reached 4")
   }
   catch(e){
+    console.error("Email send error:", e);
     return res.status(403).json({
       error:"An unexpected error occured"
     })
@@ -150,9 +161,9 @@ app.post("/user/set-password", async (req, res) => {
 
     res.cookie("auth", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 1000, // 1 hour in ms
+      secure: false,       
+      sameSite: "lax",//not in prod
+      maxAge: 60 * 60 * 1000,
     });
 
     return res.json({ message: "Password set successfully" });
@@ -185,8 +196,8 @@ app.post("/user/signin", async (req, res) => {
   
   res.cookie("auth", token, { 
     httpOnly: true, 
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: false,       //true in prod
+    sameSite: "lax",    //none in prod
     maxAge: 60 * 60 * 1000,
   });
 
@@ -199,7 +210,7 @@ app.post("/user/signout", (req, res) => {
 });
 
 app.get("/auth/validate", authMiddleware, (req, res) => {
-  return res.json({ valid: true, id: req.userId }); // req.user set by middleware
+  return res.json({ valid: true, id: req.userId }); 
 });
 app.post("/website",authMiddleware,async(req,res)=>{
 

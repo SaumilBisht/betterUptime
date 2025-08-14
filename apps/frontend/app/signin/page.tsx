@@ -15,7 +15,7 @@ export default function Signin()
     e.preventDefault();
     setError('');
     try {
-      await axios.post(`${BACKEND_URL}/user/signin`, { email, password });
+      await axios.post(`${BACKEND_URL}/user/signin`, { email, password },{ withCredentials: true });
       router.push('/dashboard');
     } catch (err: any) {
       const errorMsg =

@@ -4,7 +4,6 @@ import { Monitor, Menu, ChevronDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { BACKEND_URL } from '@/lib/utils';
 import axios from 'axios';
-import { error } from 'console';
 
 interface DashboardHeaderProps {
   isAuthenticated: boolean;
@@ -39,7 +38,7 @@ export function DashboardHeader({ isAuthenticated }: DashboardHeaderProps)
           {(isAuthenticated)?
           <div className="flex items-center space-x-4">
             <button className="hidden md:block text-gray-300 hover:text-white transition-colors"
-            onClick={(removeCookie)}>
+            onClick={()=>router.push("/signin")}>
               Sign Out
             </button>
           </div>
