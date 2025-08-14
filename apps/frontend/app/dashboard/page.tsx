@@ -1,13 +1,37 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import { Plus } from 'lucide-react';
 import { WebsiteTable } from '../../components/WebsiteTable';
 import { AddWebsiteModal } from '../../components/AddWebsiteModal';
 import { Website } from '../../lib/types';
+import axios from 'axios';
 
 export default function Dashboard() 
 {
-  //check cookies otherwise send Not signed in
+  const [isAuthenticated,setIsAuthenticated]=useState(false);
+  const [authChecked,setAuthChecked]=useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await axios.get("/auth/validate", { withCredentials: true });
+        setIsAuthenticated(true);
+      } catch (err) {
+        setIsAuthenticated(false);
+      } finally {
+        setAuthChecked(true);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  if (!authChecked) {
+    return <div className="h-screen w-screen bg-black text-white p-6">Checking authentication...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <div className="h-screen w-screen bg-black text-white p-6">Not signed in. Please sign in first.</div>;
+  }
   const [websites, setWebsites] = useState<Website[]>([
     {
       id: '1',

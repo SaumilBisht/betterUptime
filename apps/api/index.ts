@@ -198,6 +198,9 @@ app.post("/user/signout", (req, res) => {
   return res.json({ message: "Signed out successfully" });
 });
 
+app.get("/auth/validate", authMiddleware, (req, res) => {
+  return res.json({ valid: true, id: req.userId }); // req.user set by middleware
+});
 app.post("/website",authMiddleware,async(req,res)=>{
 
   if(!req.body.url)
