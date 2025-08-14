@@ -5,6 +5,7 @@ import { WebsiteTable } from '../../components/WebsiteTable';
 import { AddWebsiteModal } from '../../components/AddWebsiteModal';
 import { Website } from '../../lib/types';
 import axios from 'axios';
+import { DashboardHeader } from '@/components/DashboardHeader';
 
 export default function Dashboard() 
 {
@@ -24,13 +25,20 @@ export default function Dashboard()
     };
     checkAuth();
   }, []);
-
   if (!authChecked) {
-    return <div className="h-screen w-screen bg-black text-white p-6">Checking authentication...</div>;
+    return (
+      <div>
+        <DashboardHeader isAuthenticated={isAuthenticated}/>
+        <div className="h-screen w-screen bg-black text-white p-6">Checking authentication...</div>
+      </div>
+    );
   }
-
   if (!isAuthenticated) {
-    return <div className="h-screen w-screen bg-black text-white p-6">Not signed in. Please sign in first.</div>;
+    return (
+    <div>
+      <DashboardHeader isAuthenticated={isAuthenticated}/>
+      <div className="h-screen w-screen bg-black text-white p-6">Not signed in. Please sign in first.</div>
+    </div>);
   }
   const [websites, setWebsites] = useState<Website[]>([
     {
@@ -79,12 +87,10 @@ export default function Dashboard()
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Background gradient */}
+      <DashboardHeader isAuthenticated={isAuthenticated}/>
       <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-purple-500/5"></div>
       
       <div className="relative z-10">
-        {/* Header */}
-        <header className="border-b border-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="flex justify-between items-center">
               <div>
@@ -106,7 +112,6 @@ export default function Dashboard()
               </button>
             </div>
           </div>
-        </header>
 
         {/* Stats */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
