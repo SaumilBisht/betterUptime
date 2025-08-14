@@ -7,14 +7,32 @@ import axios from 'axios';
 export default function Signup() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error,setError]=useState('');
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    await axios.post(`${BACKEND_URL}/user/signup`,{
-      email
-    })
+    setError("");//for refresh
+  
+    try 
+    {
+      const res = await axios.post(`${BACKEND_URL}/user/signup`, { email });
+      setIsSubmitted(true); 
+    } 
+    catch (err: any) {
+      if (err.response.status==404) 
+      {
+        setError("Backend is unreachable");
+        
+      } else if (err.response) {
+        console.log(err.request);
+        setError(err.response.data.error || "Something went wrong");
+      } else {
+        console.log(err.message);
+        setError("Unexpected error");
+      }
+    }
   };
+  
 
   if (isSubmitted) {
     return (
@@ -93,8 +111,13 @@ export default function Signup() {
               </a>
             </p>
           </div>
+          <div className="mt-2 text-center">
+            <p className="text-red-600 hover:text-red-300 font-medium">
+              {error}
+            </p>
+          </div>
 
-          <div className="mt-8 pt-6 border-t border-gray-800">
+          <div className="mt-4 pt-6 border-t border-gray-800">
             <p className="text-xs text-gray-500 text-center leading-relaxed">
               By creating an account, you agree to our{' '}
               <a href="#" className="text-orange-400 hover:text-orange-300">Terms of Service</a>{' '}

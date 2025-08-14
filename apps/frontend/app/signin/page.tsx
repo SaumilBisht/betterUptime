@@ -3,18 +3,26 @@ import React, { useState } from 'react';
 import { Monitor, ArrowRight, Mail,  Eye } from 'lucide-react';
 import axios from 'axios';
 import { BACKEND_URL } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 export default function Signin() 
 {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  const handleSubmit = async(e: React.FormEvent) => 
-  {
+  const [error,setError]=useState('');
+  const router=useRouter();
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await axios.post(`${BACKEND_URL}/user/sigin`,{
-      email,password
-    })
+    setError('');
+    try {
+      await axios.post(`${BACKEND_URL}/user/signin`, { email, password });
+      router.push('/dashboard');
+    } catch (err: any) {
+      const errorMsg =
+        err.response?.data?.error ||   
+        'Something went wrong. Please try again.';
+      setError(errorMsg);
+    }
   };
 
   return (
@@ -78,6 +86,12 @@ export default function Signin()
                 <ArrowRight className="h-4 w-4" />
               </button>
             </form>
+
+            <div className="mt-2 text-center">
+            <p className="text-red-600 hover:text-red-300 font-medium">
+              {error}
+            </p>
+          </div>
           
 
           <div className="mt-6 text-center">

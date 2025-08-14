@@ -10,14 +10,20 @@ export default function SetPasswordPage() {
   const email = searchParams.get("email");
   const [password, setPassword] = useState('');
   const router=useRouter();
+  const [error, setError] = useState('');
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await axios.post(`${BACKEND_URL}/user/set-password`,{
-      email,
-      password
-    })
-    router.push("/dashboard")
+    setError('');
+    try {
+      await axios.post(`${BACKEND_URL}/user/set-password`, { email, password });
+      router.push("/dashboard");
+    } catch (err: any) {
+      const errorMsg = 
+        err.response?.data?.error || 
+        'Something went wrong. Please try again.';
+      setError(errorMsg);
+    }
   };
   
   if(!email)
@@ -76,6 +82,11 @@ export default function SetPasswordPage() {
               <span>Proceed</span>
               <ArrowRight className="h-4 w-4" />
             </button>
+            {error && (
+              <div className="text-red-500 text-sm mt-2">
+                {error}
+              </div>
+            )}
           </form>
         </div>
 

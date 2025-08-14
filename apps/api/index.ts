@@ -19,52 +19,59 @@ app.post("/user/signup",async(req,res)=>{
   if(!data.success)
   {
     return res.status(403).json({
-      "message":"Invalid inputs"
+      error:"Invalid inputs"
     })
   }
   const {email}=req.body;
-  const existingUser = await prisma.user.findUnique({
-    where: { email }
-  });  
-
-  if(existingUser && existingUser.confirmed)
-  {
+  try{
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    });  
+  
+    if(existingUser && existingUser.confirmed)
+    {
+      return res.status(403).json({
+        error:"Account already created"
+      })
+    }
+    const token = crypto.randomBytes(32).toString("hex");
+    const hashedToken = await bcrypt.hash(token, 10);
+  
+    await prisma.user.upsert({//create or update
+      where: { email },
+      update: 
+      {
+        verificationToken: hashedToken,
+        tokenExpiry: addMinutes(new Date(), 30),
+      },
+      create: {
+        email,
+        verificationToken: hashedToken,
+        tokenExpiry: addMinutes(new Date(), 30),
+      },
+    });
+  
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: process.env.USER_EMAIL,
+        pass: process.env.USER_PASSWORD,  
+      },
+    });
+    
+    const verifyUrl = `${process.env.BACKEND_URL}/verify?token=${token}&email=${email}`;
+    
+    await transporter.sendMail({
+      to: email,
+      subject: "Verify your BetterUptime account",
+      html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email. Link expires in 30 minutes.</p>`,
+    });
+  }
+  catch(e){
     return res.status(403).json({
-      error:"Account already created"
+      error:"An unexpected error occured"
     })
   }
-  const token = crypto.randomBytes(32).toString("hex");
-  const hashedToken = await bcrypt.hash(token, 10);
-
-  await prisma.user.upsert({//create or update
-    where: { email },
-    update: 
-    {
-      verificationToken: hashedToken,
-      tokenExpiry: addMinutes(new Date(), 30),
-    },
-    create: {
-      email,
-      verificationToken: hashedToken,
-      tokenExpiry: addMinutes(new Date(), 30),
-    },
-  });
-
-  const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    auth: {
-      user: process.env.USER_EMAIL,
-      pass: process.env.USER_PASSWORD,  
-    },
-  });
-  
-  const verifyUrl = `${process.env.BACKEND_URL}/verify?token=${token}&email=${email}`;
-  
-  await transporter.sendMail({
-    to: email,
-    subject: "Verify your BetterUptime account",
-    html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email. Link expires in 30 minutes.</p>`,
-  });
   return res.json({
     message:"Verification Link sent successfully"
   })
@@ -112,70 +119,79 @@ app.get("/verify",async (req,res)=>{
   res.redirect(`${process.env.FRONTEND_URL}/set-password?email=${email}`)
 })
 app.post("/user/set-password", async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required" });
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (!user.confirmed) {
+      return res.status(403).json({ error: "User not verified" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    await prisma.user.update({
+      where: { email },
+      data: { password: hashedPassword },
+    });
+
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_PASS!,
+      { expiresIn: "1h" } // session lasts 1 hour
+    );
+
+    res.cookie("auth", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000, // 1 hour in ms
+    });
+
+    return res.json({ message: "Password set successfully" });
+  } catch (error) {
+    console.error("Error in set-password:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
-
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !user.confirmed) {
-    return res.status(400).json({ error: "User not found or not verified" });
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 12);
-
-  await prisma.user.update({
-    where: { email },
-    data: { password: hashedPassword },
-  });
-
-  const token = jwt.sign({ userId: user.id }, 
-    process.env.JWT_PASS!, 
-    { expiresIn: "1h" } // session lasts 1 hour
-  );
-
-  res.cookie("auth", token, { 
-    httpOnly: true, 
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 60 * 60 * 1000, // 1 hour in ms
-  });
-
-  return res.json({ message: "Password set successfully & cookie sent" });
 });
 
-app.post("/user/signin",async(req,res)=>{
-  const data=AuthInput.safeParse(req.body);
-  if(!data.success)
-  {
-    return res.status(403).json({
-      message:"Invalid inputs"
-    })
+
+app.post("/user/signin", async (req, res) => {
+  const data = AuthInput.safeParse(req.body);
+  if (!data.success) {
+    return res.status(403).json({ error: "Invalid inputs" });
   }
-  const {email,password}=req.body;
-  const user= prisma.user.findUnique({
-    where:{email}
-  })
-  if(!user || !user.confirmed || !user.password)return res.status(400).send("Invalid Credentials")
 
-  const valid=await bcrypt.compare(password,user.password);
+  const { email, password } = req.body;
+  const user = await prisma.user.findUnique({ where: { email } });
 
-  if(!valid)return res.status(400).send("incorrect password")
+  if (!user || !user.confirmed || !user.password) {
+    return res.status(400).json({ error: "Invalid credentials" });
+  }
 
-  const token = jwt.sign({ userId: user.id }, 
-      process.env.JWT_PASS!, 
-    { expiresIn: "1h" } // session lasts 1 hour
-  );
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) {
+    return res.status(400).json({ error: "Incorrect password" });
+  }
 
+  const token = jwt.sign({ userId: user.id }, process.env.JWT_PASS!, { expiresIn: "1h" });
+  
   res.cookie("auth", token, { 
     httpOnly: true, 
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 60 * 60 * 1000, // 1 hour in ms
+    maxAge: 60 * 60 * 1000,
   });
 
-})
+  return res.status(200).json({ message: "Signin successful" });
+});
 
 app.post("/user/signout", (req, res) => {
   res.clearCookie("auth");
