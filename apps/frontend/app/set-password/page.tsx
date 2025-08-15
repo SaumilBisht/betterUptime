@@ -16,7 +16,7 @@ export default function SetPasswordPage() {
     e.preventDefault();
     setError('');
     try {
-      await axios.post(`${BACKEND_URL}/user/set-password`, { email, password });
+      await axios.post(`${BACKEND_URL}/user/set-password`, { email, password },{ withCredentials: true });
       router.push("/dashboard");
     } catch (err: any) {
       const errorMsg = 

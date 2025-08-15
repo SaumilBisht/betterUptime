@@ -40,8 +40,10 @@ export default function Dashboard()
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const didCheckAuth = React.useRef(false);
   useEffect(() => {
+    if (didCheckAuth.current) return;//reduce multiple auth calls
+    didCheckAuth.current = true;
     const checkAuth = async () => {
       try {
         await axios.get(`${BACKEND_URL}/auth/validate`, { withCredentials: true });
@@ -89,7 +91,7 @@ export default function Dashboard()
   return (
     <div className="min-h-screen bg-black">
       <DashboardHeader isAuthenticated={isAuthenticated}/>
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-purple-500/5"></div>
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-orange-500/5 via-transparent to-purple-500/5"></div>
       
       <div className="relative z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

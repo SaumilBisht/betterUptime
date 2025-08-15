@@ -153,20 +153,15 @@ app.post("/user/set-password", async (req, res) => {
       data: { password: hashedPassword },
     });
 
-    const token = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_PASS!,
-      { expiresIn: "1h" } // session lasts 1 hour
-    );
-
-    res.cookie("auth", token, {
-      httpOnly: true,
-      secure: false,       
-      sameSite: "lax",//not in prod
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_PASS!, { expiresIn: "1h" });
+    res.cookie("auth", token, { 
+      httpOnly: true, 
+      secure: false,       //true in prod
+      sameSite: "lax",    //none in prod
       maxAge: 60 * 60 * 1000,
     });
 
-    return res.json({ message: "Password set successfully" });
+    return res.status(200).json({ message: "Password set successfully" });
   } catch (error) {
     console.error("Error in set-password:", error);
     return res.status(500).json({ error: "Internal server error" });
