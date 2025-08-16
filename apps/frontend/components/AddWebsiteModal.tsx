@@ -5,21 +5,16 @@ import { Website } from '../lib/types';
 interface AddWebsiteModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (website: Omit<Website, 'id'>) => void;
+  onAdd: (website: Pick<Website, 'url'>) => void; 
 }
 
 export function AddWebsiteModal({ isOpen, onClose, onAdd }: AddWebsiteModalProps) {
-  const [name, setName] = useState('');
   const [url, setUrl] = useState('');
-  const [errors, setErrors] = useState<{ name?: string; url?: string }>({});
+  const [errors, setErrors] = useState<{ url?: string }>({});
 
   const validateForm = () => {
-    const newErrors: { name?: string; url?: string } = {};
-    
-    if (!name.trim()) {
-      newErrors.name = 'Website name is required';
-    }
-    
+    const newErrors: { url?: string } = {};
+
     if (!url.trim()) {
       newErrors.url = 'Website URL is required';
     } else {
@@ -29,29 +24,20 @@ export function AddWebsiteModal({ isOpen, onClose, onAdd }: AddWebsiteModalProps
         newErrors.url = 'Please enter a valid URL';
       }
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
-      const formattedUrl = url.startsWith('http://') || url.startsWith('https://') 
-        ? url 
+      const formattedUrl = url.startsWith('http://') || url.startsWith('https://')
+        ? url
         : `https://${url}`;
-      
-      onAdd({
-        name: name.trim(),
-        url: formattedUrl,
-        status: Math.random() > 0.3 ? 'up' : 'down', // Random status for demo
-        lastChecked: new Date(),
-        responseTime: Math.random() > 0.3 ? Math.floor(Math.random() * 500) + 50 : undefined
-      });
-      
-      // Reset form
-      setName('');
+
+      onAdd({ url: formattedUrl });
+
       setUrl('');
       setErrors({});
     }
@@ -62,13 +48,11 @@ export function AddWebsiteModal({ isOpen, onClose, onAdd }: AddWebsiteModalProps
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        {/* Background overlay */}
         <div 
           className="fixed inset-0 transition-opacity bg-black bg-opacity-75"
           onClick={onClose}
         ></div>
 
-        {/* Modal */}
         <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-gray-900 shadow-2xl rounded-2xl border border-gray-800 relative z-10">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
@@ -84,28 +68,6 @@ export function AddWebsiteModal({ isOpen, onClose, onAdd }: AddWebsiteModalProps
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-                Website Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., My Portfolio"
-                className={`w-full px-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors ${
-                  errors.name ? 'border-red-500' : 'border-gray-700 hover:border-gray-600'
-                }`}
-              />
-              {errors.name && (
-                <div className="flex items-center space-x-1 mt-2 text-red-400 text-sm">
-                  <AlertCircle className="h-4 w-4" />
-                  <span>{errors.name}</span>
-                </div>
-              )}
-            </div>
-
             <div>
               <label htmlFor="url" className="block text-sm font-medium text-gray-300 mb-2">
                 Website URL

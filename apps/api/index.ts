@@ -259,6 +259,14 @@ app.get("/websites",authMiddleware,async(req,res)=>{
   const websites=await prisma.website.findMany({
     where:{
       userId:req.userId
+    },
+    include:{
+      ticks:{
+        orderBy:[{
+          createdAt:"desc"
+        }],
+        take:1
+      }
     }
   })
 
@@ -266,5 +274,28 @@ app.get("/websites",authMiddleware,async(req,res)=>{
     websites
   })
 })
+
+app.delete('/website/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const website = await prisma.website.findUnique({
+      where: { id },
+    });
+
+    if (!website) {
+      return res.status(404).json({ error: 'Website not found' });
+    }
+
+    await prisma.website.delete({
+      where: { id },
+    });
+
+    return res.status(200).json({ success: true, message: 'Website deleted' });
+  } catch (error) {
+    console.error('Failed to delete website:', error);
+    return res.status(500).json({ error: 'Failed to delete website' });
+  }
+});
 
 app.listen(process.env.port || 3001)
