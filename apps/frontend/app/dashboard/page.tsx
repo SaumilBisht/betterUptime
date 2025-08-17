@@ -53,7 +53,7 @@ export default function Dashboard()
 
   }, []);
   useEffect(()=>{
-
+    if(!authChecked || !isAuthenticated)return;
     const fetchWebsite=async()=>{
       const res=await axios.get(`${BACKEND_URL}/websites`,{withCredentials:true});
       setWebsites(res.data.websites.map((w:WebsiteFromAPI)=>({
@@ -68,7 +68,7 @@ export default function Dashboard()
 
     const interval=setInterval(fetchWebsite,3*1000*60)
     return ()=>clearInterval(interval)
-  },[])
+  },[authChecked, isAuthenticated])
   if (!authChecked) {
     return (
       <div>
