@@ -101,7 +101,7 @@ export function WebsiteTable({ websites, onDelete }: WebsiteTableProps) {
                         website.status === 'Up' ? 'bg-green-400' : 'bg-red-400'
                       }`}
                     ></div>
-                    {website.status === 'Up' ? 'Online' : 'Offline'}
+                    {website.status}
                   </span>
                 </td>
                 <td className="py-4 px-6">
