@@ -33,7 +33,9 @@ export default function Dashboard()
       url: w.url,
       status: w.ticks[0]?.status || "Unknown",
       responseTime: w.ticks[0]?.response_time_ms || 0,
-      lastChecked: w.ticks[0] ? new Date(w.ticks[0].createdAt) : new Date()
+      lastChecked: w.ticks[0]
+      ? new Date(w.ticks[0].createdAt)
+      : new Date()
     }));
 
   useEffect(() => {
