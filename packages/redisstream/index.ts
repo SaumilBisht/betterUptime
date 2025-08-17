@@ -59,7 +59,6 @@ async function xAck(consumerGroup: string, eventId: string) {
   await client.xAck(STREAM_NAME, consumerGroup, eventId)
 }
 
-export async function xAckBulk(consumerGroup: string, eventIds: string[]) 
-{
-  eventIds.map(eventId => xAck(consumerGroup, eventId));
+export async function xAckBulk(consumerGroup: string, eventIds: string[]) {
+  await Promise.all(eventIds.map(eventId => xAck(consumerGroup, eventId)));
 }
