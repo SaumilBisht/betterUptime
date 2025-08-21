@@ -123,7 +123,7 @@ export default function Dashboard()
 
       <div className="relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
             <div>
               <h1 className="text-3xl font-bold text-white">
                 Website Monitor
@@ -136,7 +136,7 @@ export default function Dashboard()
               </p>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
               <button
                 onClick={fetchWebsite} 
                 className="bg-gray-700 text-white px-4 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-all transform hover:scale-105 shadow-lg flex items-center space-x-2"

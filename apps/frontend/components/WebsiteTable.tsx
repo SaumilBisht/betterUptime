@@ -44,7 +44,7 @@ export function WebsiteTable({ websites, onDelete }: WebsiteTableProps) {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-max">
           <thead>
             <tr className="border-b border-gray-800">
               <th className="text-left py-4 px-6 font-semibold text-gray-300 text-sm uppercase tracking-wider">
