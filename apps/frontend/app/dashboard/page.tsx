@@ -38,6 +38,17 @@ export default function Dashboard()
       : new Date()
     }));
 
+  const fetchWebsite=async()=>{
+    const res=await axios.get(`${BACKEND_URL}/websites`,{withCredentials:true});
+    setWebsites(res.data.websites.map((w:WebsiteFromAPI)=>({
+      id:w.id,
+      url:w.url,
+      status:(w.ticks[0])?w.ticks[0].status: "Unknown",
+      responseTime:(w.ticks[0])?w.ticks[0].response_time_ms:0,
+      lastChecked:(w.ticks[0])?w.ticks[0].createdAt:new Date(Date.now())
+    })))
+  }
+
   useEffect(() => {
     if (didCheckAuth.current) return;//reduce multiple auth calls
     didCheckAuth.current = true;
@@ -56,16 +67,7 @@ export default function Dashboard()
   }, []);
   useEffect(()=>{
     if(!authChecked || !isAuthenticated)return;
-    const fetchWebsite=async()=>{
-      const res=await axios.get(`${BACKEND_URL}/websites`,{withCredentials:true});
-      setWebsites(res.data.websites.map((w:WebsiteFromAPI)=>({
-        id:w.id,
-        url:w.url,
-        status:(w.ticks[0])?w.ticks[0].status: "Unknown",
-        responseTime:(w.ticks[0])?w.ticks[0].response_time_ms:0,
-        lastChecked:(w.ticks[0])?w.ticks[0].createdAt:new Date(Date.now())
-      })))
-    }
+    
     fetchWebsite();//once immediately
 
     const interval=setInterval(fetchWebsite,3*1000*60)
@@ -134,13 +136,36 @@ export default function Dashboard()
               </p>
             </div>
 
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-orange-500 text-black px-6 py-3 rounded-lg font-semibold hover:bg-orange-400 transition-all transform hover:scale-105 shadow-lg flex items-center space-x-2"
-            >
-              <Plus className="h-5 w-5" />
-              <span>Add Website</span>
-            </button>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={fetchWebsite} 
+                className="bg-gray-700 text-white px-4 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-all transform hover:scale-105 shadow-lg flex items-center space-x-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v6h6M20 20v-6h-6M5 19a9 9 0 0014-7V5M19 5a9 9 0 00-14 7v7"
+                  />
+                </svg>
+                <span>Refresh</span>
+              </button>
+
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-orange-500 text-black px-6 py-3 rounded-lg font-semibold hover:bg-orange-400 transition-all transform hover:scale-105 shadow-lg flex items-center space-x-2"
+              >
+                <Plus className="h-5 w-5" />
+                <span>Add Website</span>
+              </button>
+            </div>
           </div>
         </div>
 
