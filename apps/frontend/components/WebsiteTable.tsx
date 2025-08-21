@@ -121,21 +121,23 @@ export function WebsiteTable({ websites, onDelete }: WebsiteTableProps) {
                     <span>{formatLastChecked(website.lastChecked)}</span>
                   </span>
                 </td>
-                <td className="py-4 px-6 text-right space-x-2">
-                  <a
-                    href={`/website/${website.id}/actions`}
-                    className="text-gray-400 hover:text-orange-400 transition-colors p-1 hover:bg-orange-500/10 rounded"
-                    title="View last 10 checks"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                  <button
-                    onClick={() => onDelete(website.id)}
-                    className="text-gray-400 hover:text-red-400 transition-colors p-1 hover:bg-red-500/10 rounded"
-                    title="Delete website"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                <td className="py-4 px-6 text-right">
+                  <div className="flex justify-end items-center space-x-2">
+                    <a
+                      href={`/website/${website.id}/actions`}
+                      className="flex items-center justify-center text-gray-400 hover:text-orange-400 transition-colors p-1 hover:bg-orange-500/10 rounded"
+                      title="View last 10 checks"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                    <button
+                      onClick={() => onDelete(website.id)}
+                      className="flex items-center justify-center text-gray-400 hover:text-red-400 transition-colors p-1 hover:bg-red-500/10 rounded"
+                      title="Delete website"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
