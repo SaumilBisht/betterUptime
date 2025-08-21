@@ -23,7 +23,7 @@ async function main()
     let promises = response.map(({message}) => fetchWebsite(message.url, message.id))
 
     await Promise.all(promises);// Waits for all of them to finish not one by one which would take some time.
-    console.log(promises.length);
+    console.log(promises.length);//how many messages were read in a single xReadGroup call+ some messages arrive at slightly different times(as pusher is pushing every 3 min).
 
     xAckBulk(REGION_ID, response.map(({id}) => id));//redis message id acknowledge
   

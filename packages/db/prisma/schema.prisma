@@ -51,7 +51,7 @@ model website_tick{
   createdAt         DateTime  @default(now())
 
   region            region  @relation(fields: [region_id],references: [id])
-  website           website @relation(fields: [website_id],references: [id])
+  website           website @relation(fields: [website_id],references: [id],onDelete: Cascade)
 }
 enum website_status {
   Up
