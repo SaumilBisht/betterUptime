@@ -87,20 +87,29 @@ export function WebsiteTable({ websites, onDelete }: WebsiteTableProps) {
                 </td>
                 <td className="py-4 px-6">
                   <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                      website.status === 'Up'
-                        ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                        : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                    }`}
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border 
+                      ${
+                        website.status === 'Up'
+                          ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                          : website.status === 'Down'
+                          ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                          : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                      }`}
                   >
                     <div
-                      className={`w-2 h-2 rounded-full mr-2 ${
-                        website.status === 'Up' ? 'bg-green-400' : 'bg-red-400'
-                      }`}
+                      className={`w-2 h-2 rounded-full mr-2 
+                        ${
+                          website.status === 'Up'
+                            ? 'bg-green-400'
+                            : website.status === 'Down'
+                            ? 'bg-red-400'
+                            : 'bg-yellow-400'
+                        }`}
                     ></div>
                     {website.status}
                   </span>
                 </td>
+
                 <td className="py-4 px-6">
                   <span className="text-gray-300">
                     {website.responseTime ? `${website.responseTime}ms` : '—'}
