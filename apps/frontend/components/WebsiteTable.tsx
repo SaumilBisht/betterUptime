@@ -124,7 +124,7 @@ export function WebsiteTable({ websites, onDelete }: WebsiteTableProps) {
                 <td className="py-4 px-6 text-right">
                   <div className="flex justify-end items-center space-x-2">
                     <a
-                      href={`/website/${website.id}/actions`}
+                      href={`/website/${website.id}`}
                       className="flex items-center justify-center text-gray-400 hover:text-orange-400 transition-colors p-1 hover:bg-orange-500/10 rounded"
                       title="View last 10 checks"
                     >

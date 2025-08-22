@@ -232,6 +232,8 @@ app.post("/website",authMiddleware,async(req,res)=>{
 
 app.post("/status/:websiteId",authMiddleware,async(req,res)=>{
 
+  const skip = req.body.skip || 0;
+
   const website=await prisma.website.findFirst({
     where:{
       id:req.params.websiteId,
@@ -239,12 +241,10 @@ app.post("/status/:websiteId",authMiddleware,async(req,res)=>{
     },
     include:{
       ticks:{
-        orderBy:[{
-          createdAt:"desc"
-        }],
+        orderBy:[{createdAt:"desc"}],
+        skip,
         take:10
       }
-
     }
   })
 
