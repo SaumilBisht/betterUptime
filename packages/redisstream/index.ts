@@ -19,6 +19,18 @@ type MessageType = {
 
 const STREAM_NAME = "betteruptime:website";
 
+export async function ensureConsumerGroup(consumerGroup: string) {
+  try {
+    await client.xGroupCreate(STREAM_NAME, consumerGroup, "$", { MKSTREAM: true });
+    console.log(`Consumer group ${consumerGroup} created`);
+  } catch (err: any) {
+    if (err.message.includes("BUSYGROUP")) {
+      console.log(`Consumer group ${consumerGroup} already exists`);
+    } else {
+      throw err;
+    }
+  }
+}
 async function xAdd({url, id}: WebsiteEvent) {
     await client.xAdd(
         STREAM_NAME, '*', {

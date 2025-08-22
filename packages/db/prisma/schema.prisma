@@ -34,6 +34,8 @@ model website{
   timeAdded   DateTime
   ticks       website_tick[]
   user        user      @relation(fields: [userId],references: [id])
+
+  @@unique([userId, url], name: "userId_url_unique") 
 }
 
 model region{

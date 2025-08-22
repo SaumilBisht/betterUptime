@@ -1,4 +1,4 @@
-import { xReadGroup,xAckBulk,xAutoClaim} from "redisstream/client";
+import { ensureConsumerGroup,xReadGroup,xAckBulk,xAutoClaim} from "redisstream/client";
 import {prisma} from "db/client"
 import axios from "axios";
 
@@ -13,6 +13,7 @@ if (!WORKER_ID) {
   throw new Error("Region not provided");
 }
 
+await ensureConsumerGroup(REGION_ID);
 async function main()
 {
   let lastAutoClaim=Date.now();
