@@ -1,4 +1,4 @@
-import { xReadGroup,xAckBulk } from "redisstream/client";
+import { xReadGroup,xAckBulk,xAutoClaim} from "redisstream/client";
 import {prisma} from "db/client"
 import axios from "axios";
 
@@ -15,18 +15,32 @@ if (!WORKER_ID) {
 
 async function main()
 {
+  let lastAutoClaim=Date.now();
   while(1)
   {
+
     const response = await xReadGroup(REGION_ID, WORKER_ID); //messages array returns
-    if (!response) continue;
+    if (response && response.length > 0) {
+      await Promise.all(
+        response.map(({ message }) => fetchWebsite(message.url, message.id))
+      );// Waits for all of them to finish not one by one which would take some time.
+      xAckBulk(REGION_ID, response.map(({ id }) => id));
+      console.log(`Processed ${response.length} new messages`);//how many messages were read in a single xReadGroup call+ some messages arrive at slightly different times(as pusher is pushing every 3 min).
+    }
+    //Pending Messages Reclaim Now.
+    if (Date.now() - lastAutoClaim > 300000) { // every 300 seconds
+      lastAutoClaim = Date.now();
 
-    let promises = response.map(({message}) => fetchWebsite(message.url, message.id))
-
-    await Promise.all(promises);// Waits for all of them to finish not one by one which would take some time.
-    console.log(promises.length);//how many messages were read in a single xReadGroup call+ some messages arrive at slightly different times(as pusher is pushing every 3 min).
-
-    xAckBulk(REGION_ID, response.map(({id}) => id));//redis message id acknowledge
-  
+      const pending = await xAutoClaim(REGION_ID, WORKER_ID, 90000, 10); // claim msgs idle > 90s
+      if (pending.length > 0) 
+      {
+        console.log(`Reclaimed ${pending.length} stuck messages`);
+        await Promise.all(
+          pending.map(({ message }) => fetchWebsite(message.url, message.id))
+        );
+        xAckBulk(REGION_ID, pending.map(({ id }) => id));
+      }
+    }
   }
 }
 async function fetchWebsite(url: string, websiteId: string) //receives url and db id

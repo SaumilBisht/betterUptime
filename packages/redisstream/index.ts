@@ -62,3 +62,20 @@ async function xAck(consumerGroup: string, eventId: string) {
 export async function xAckBulk(consumerGroup: string, eventIds: string[]) {
   await Promise.all(eventIds.map(eventId => xAck(consumerGroup, eventId)));
 }
+
+export async function xAutoClaim(consumerGroup: string, workerId: string, minIdleMs = 60000, count = 10): Promise<MessageType[]> {
+
+  const res = await client.xAutoClaim(
+    STREAM_NAME,
+    consumerGroup,
+    workerId,
+    minIdleMs, // claim messages, idle > minIdleMs
+    '0-0',     // start from the beginning of pending list
+    { COUNT: count }
+  );
+
+  // res[1] is the array of messages
+  //@ts-ignore
+  let messages: MessageType[] = res?.messages || res?.[1] || [];
+  return messages;
+}
