@@ -40,7 +40,7 @@ model website{
 
 model region{
   id          String    @id     @default(uuid())
-  name        String 
+  name        String    @unique
   ticks       website_tick[]
 }
 
