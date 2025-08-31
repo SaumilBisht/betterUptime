@@ -10,8 +10,9 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "db": "*",
+    "https-proxy-agent": "^7.0.6",
     "redis": "^5.7.0",
-    "db":"*",
-    "redisstream":"*"
+    "redisstream": "*"
   }
 }

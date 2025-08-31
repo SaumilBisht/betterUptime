@@ -1,6 +1,7 @@
 import { ensureConsumerGroup,xReadGroup,xAckBulk,xAutoClaim} from "redisstream/client";
 import {prisma} from "db/client"
 import axios,{ type AxiosInstance } from "axios";
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 const REGION_ID = process.env.REGION_ID!;
 const WORKER_ID = process.env.WORKER_ID!;
@@ -26,13 +27,16 @@ async function checkRegion(region_id:string):Promise<string | null>
 
 async function createAxiosInstance(): Promise<AxiosInstance> {
   const proxyHost = await checkRegion(REGION_ID);
-  console.log(proxyHost);
-  return proxyHost
-    ? axios.create({
-        proxy: { host: proxyHost, port: proxyPort },
-        timeout: 10000, // 10 seconds
-      })
-    : axios.create({ timeout: 10000 });
+  const agent = new HttpsProxyAgent(`http://${proxyHost}:${proxyPort}`);
+
+  return proxyHost? 
+    axios.create({
+      httpAgent: agent,
+      httpsAgent: agent,
+      timeout: 20000,
+      maxRedirects: 5,
+    })
+    : axios.create({ timeout: 10000 });//not hang on a dead server
 }
 const axiosInstance = await createAxiosInstance();
 
@@ -73,7 +77,8 @@ async function fetchWebsite(url: string, websiteId: string) //receives url and d
   const startTime = Date.now();
   
   try {
-    await axiosInstance.get(url);
+    const response = await axiosInstance.get(url, { timeout: 20000 });
+    console.log(url, response.status);
     const endTime = Date.now();
     await prisma.website_tick.create({
       data: {
@@ -83,7 +88,8 @@ async function fetchWebsite(url: string, websiteId: string) //receives url and d
         website_id: websiteId,
       },
     });
-  } catch {
+  } catch (err:any){
+    console.error(url, err.code || err.message);
     const endTime = Date.now();
     await prisma.website_tick.create({
       data: {

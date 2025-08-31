@@ -27,7 +27,6 @@ app.post("/user/signup",async(req,res)=>{
       error:"Invalid inputs"
     })
   }
-  console.log("reached 1")
   const {email}=req.body;
   try{
     const existingUser = await prisma.user.findUnique({
@@ -56,7 +55,6 @@ app.post("/user/signup",async(req,res)=>{
         tokenExpiry: addMinutes(new Date(), 30),
       },
     });
-    console.log("reached 2")
   
     const transporter = nodemailer.createTransport({
       service: "Gmail",

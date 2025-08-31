@@ -13,4 +13,5 @@
 
 4. Worker se read
   -> REGION_ID=9a0511a5-731b-4892-8d70-4108baa29362 WORKER_ID=1 bun index.ts
+  -> REGION_ID=3b6ee783-3a33-47e8-86e4-3b5d6dd0336a WORKER_ID=2 bun index.ts
   (region id take from seed regions as it will make the consumer group)
