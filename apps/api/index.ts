@@ -241,7 +241,8 @@ app.post("/status/:websiteId",authMiddleware,async(req,res)=>{
       ticks:{
         orderBy:[{createdAt:"desc"}],
         skip,
-        take:10
+        take:10,
+        include: { region: true } 
       }
     }
   })

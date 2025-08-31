@@ -6,15 +6,59 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { BACKEND_URL } from "@/lib/utils";
 import { Clock } from "lucide-react";
 
-type Tick = {
+interface Tick {
+  id: string;
   status: string;
   response_time_ms: number;
   createdAt: string;
-};
-
-type Website = {
+  region: { name: string };
+}
+interface Website {
   id: string;
   url: string;
+  ticks: Tick[];
+}
+const groupTicks = (ticks: Tick[]) => {
+  const sorted = [...ticks].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  const groups: any[] = [];
+
+  sorted.forEach((t) => {
+    const ts = new Date(t.createdAt).getTime();
+
+    // If tick falls into an existing group within 60s
+    const group = groups.find(
+      (g) => Math.abs(new Date(g.createdAt).getTime() - ts) <= 60000
+    );
+
+    if (group) {
+      if (t.region.name.toLowerCase() === "india") {
+        group.indiaStatus = t.status;
+        group.indiaResponse = t.response_time_ms;
+      }
+      if (t.region.name.toLowerCase() === "usa") {
+        group.usStatus = t.status;
+        group.usResponse = t.response_time_ms;
+      }
+    }
+     else 
+      {
+      const newGroup: any = { createdAt: t.createdAt };
+      if (t.region.name.toLowerCase() === "india") {
+        newGroup.indiaStatus = t.status;
+        newGroup.indiaResponse = t.response_time_ms;
+      }
+      if (t.region.name.toLowerCase() === "usa") {
+        newGroup.usStatus = t.status;
+        newGroup.usResponse = t.response_time_ms;
+      }
+      groups.push(newGroup);
+    }
+  });
+
+  return groups;
 };
 
 export default function WebsiteTicksPage() {
@@ -56,7 +100,15 @@ export default function WebsiteTicksPage() {
       const w = res.data.website;
       if (!w) return;
 
-      if (!append) setWebsite({ id: w.id, url: w.url });
+      if (!append) {
+        setWebsite({ id: w.id, url: w.url, ticks: w.ticks });
+      } else {
+        setWebsite(prev =>
+          prev
+            ? { ...prev, ticks: [...prev.ticks, ...w.ticks] }
+            : { id: w.id, url: w.url, ticks: w.ticks }
+        );
+      }
 
       const newTicks: Tick[] = w.ticks;
       if (newTicks.length < 10) setHasMore(false);
@@ -80,6 +132,7 @@ export default function WebsiteTicksPage() {
     fetchTicks(false);
   }, [authChecked, isAuthenticated, websiteId]);
 
+  const rows = website ? groupTicks(website.ticks) : [];
   if (!authChecked) {
     return (
       <div>
@@ -135,10 +188,16 @@ export default function WebsiteTicksPage() {
                 <thead>
                   <tr className="border-b border-gray-800">
                     <th className="text-left py-4 px-6 font-semibold text-gray-300 text-sm uppercase tracking-wider">
-                      Status
+                      Status (India)
                     </th>
                     <th className="text-left py-4 px-6 font-semibold text-gray-300 text-sm uppercase tracking-wider">
-                      Response Time
+                      Response (India)
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-300 text-sm uppercase tracking-wider">
+                      Status (US)
+                    </th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-300 text-sm uppercase tracking-wider">
+                      Response (US)
                     </th>
                     <th className="text-left py-4 px-6 font-semibold text-gray-300 text-sm uppercase tracking-wider">
                       Checked At
@@ -146,36 +205,52 @@ export default function WebsiteTicksPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800">
-                  {ticks.map((tick, idx) => (
+                  {rows.map((row, idx) => (
                     <tr
-                      key={tick.createdAt + idx}
+                      key={row.createdAt + idx}
                       className={`hover:bg-gray-800/50 transition-colors ${
                         idx % 2 === 0 ? "bg-gray-900/50" : "bg-transparent"
                       }`}
                     >
                       <td className="py-4 px-6">
-                        <span
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border 
-                            ${
-                              tick.status === "Up"
-                                ? "bg-green-500/10 text-green-400 border-green-500/20"
-                                : "bg-red-500/10 text-red-400 border-red-500/20"
-                            }`}
-                        >
-                          <div
-                            className={`w-2 h-2 rounded-full mr-2 ${
-                              tick.status === "Up" ? "bg-green-400" : "bg-red-400"
-                            }`}
-                          ></div>
-                          {tick.status}
-                        </span>
+                        {row.indiaStatus ? (
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border 
+                            ${row.indiaStatus === "Up"
+                              ? "bg-green-500/10 text-green-400 border-green-500/20"
+                              : "bg-red-500/10 text-red-400 border-red-500/20"}`}>
+                            <div className={`w-2 h-2 rounded-full mr-2 ${
+                              row.indiaStatus === "Up" ? "bg-green-400" : "bg-red-400"
+                            }`}></div>
+                            {row.indiaStatus}
+                          </span>
+                        ) : "—"}
                       </td>
+
                       <td className="py-4 px-6 text-gray-300">
-                        {tick.response_time_ms}ms
+                        {row.indiaResponse ? `${row.indiaResponse}ms` : "—"}
                       </td>
+
+                      <td className="py-4 px-6">
+                        {row.usStatus ? (
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border 
+                            ${row.usStatus === "Up"
+                              ? "bg-green-500/10 text-green-400 border-green-500/20"
+                              : "bg-red-500/10 text-red-400 border-red-500/20"}`}>
+                            <div className={`w-2 h-2 rounded-full mr-2 ${
+                              row.usStatus === "Up" ? "bg-green-400" : "bg-red-400"
+                            }`}></div>
+                            {row.usStatus}
+                          </span>
+                        ) : "—"}
+                      </td>
+
+                      <td className="py-4 px-6 text-gray-300">
+                        {row.usResponse ? `${row.usResponse}ms` : "—"}
+                      </td>
+
                       <td className="py-4 px-6 text-gray-400 flex items-center space-x-1">
                         <Clock className="h-4 w-4" />
-                        <span>{formatTime(tick.createdAt)}</span>
+                        <span>{formatTime(row.createdAt)}</span>
                       </td>
                     </tr>
                   ))}
