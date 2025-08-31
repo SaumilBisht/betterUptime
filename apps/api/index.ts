@@ -259,18 +259,30 @@ app.get("/websites",authMiddleware,async(req,res)=>{
       userId:req.userId
     },
     include:{
-      ticks:{
-        orderBy:[{
-          createdAt:"desc"
-        }],
-        take:1
+      ticks: {
+        orderBy: { createdAt: "desc" },
+        take: 10, // 10 liye from each website
+        include: { region: true }
       }
     }
   })
 
-  return res.json({
-    websites
-  })
+  const formatted = websites.map(w => {
+    const indiaTick = w.ticks.find(t => t.region.name === "india");
+    const usTick = w.ticks.find(t => t.region.name === "usa");
+    return {
+      id: w.id,
+      url: w.url,
+      indiaStatus: indiaTick ? indiaTick.status : "Unknown",
+      indiaResponse: indiaTick ? indiaTick.response_time_ms : 0,
+      indiaChecked: indiaTick ? indiaTick.createdAt : null,
+      usStatus: usTick ? usTick.status : "Unknown",
+      usResponse: usTick ? usTick.response_time_ms : 0,
+      usChecked: usTick ? usTick.createdAt : null
+    };
+  });
+
+  return res.json({ websites: formatted });
 })
 
 app.delete('/website/:id', async (req, res) => {

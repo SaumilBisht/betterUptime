@@ -11,11 +11,12 @@ import { BACKEND_URL } from '@/lib/utils';
 type WebsiteFromAPI = {
   id: string;
   url: string;
-  ticks: {
-    status: string;
-    response_time_ms: number;
-    createdAt: string;
-  }[];
+  indiaStatus: string;
+  indiaResponse: number;
+  indiaChecked: string | null;
+  usStatus: string;
+  usResponse: number;
+  usChecked: string | null;
 };
 
 export default function Dashboard() 
@@ -28,26 +29,25 @@ export default function Dashboard()
 
   // Helper to convert API data to frontend Website[]
   const mapWebsites = (data: WebsiteFromAPI[]): Website[] =>
-    data.map((w) => ({
-      id: w.id,
-      url: w.url,
-      status: w.ticks[0]?.status || "Unknown",
-      responseTime: w.ticks[0]?.response_time_ms || 0,
-      lastChecked: w.ticks[0]
-      ? new Date(w.ticks[0].createdAt)
-      : new Date()
-    }));
+  data.map((w) => ({
+    id: w.id,
+    url: w.url,
+    indiaStatus: w.indiaStatus || "Unknown",
+    usStatus: w.usStatus || "Unknown",
+    indiaResponse: w.indiaResponse ?? 0,
+    usResponse: w.usResponse ?? 0,
+    lastCheckedIndia: w.indiaChecked ? new Date(w.indiaChecked) : null,
+    lastCheckedUS: w.usChecked ? new Date(w.usChecked) : null,
+  }));
 
-  const fetchWebsite=async()=>{
-    const res=await axios.get(`${BACKEND_URL}/websites`,{withCredentials:true});
-    setWebsites(res.data.websites.map((w:WebsiteFromAPI)=>({
-      id:w.id,
-      url:w.url,
-      status:(w.ticks[0])?w.ticks[0].status: "Unknown",
-      responseTime:(w.ticks[0])?w.ticks[0].response_time_ms:0,
-      lastChecked:(w.ticks[0])?w.ticks[0].createdAt:new Date(Date.now())
-    })))
-  }
+
+  const fetchWebsite = async () => {
+    const res = await axios.get<{ websites: WebsiteFromAPI[] }>(
+      `${BACKEND_URL}/websites`,
+      { withCredentials: true }
+    );
+    setWebsites(mapWebsites(res.data.websites));
+  };
 
   useEffect(() => {
     if (didCheckAuth.current) return;//reduce multiple auth calls
@@ -89,19 +89,16 @@ export default function Dashboard()
     </div>);
   }
 
-  const addWebsite =async (website: Omit<Website, 'id' | 'status' | 'responseTime' | 'lastChecked'>) => 
-  {
-    const res=await axios.post(`${BACKEND_URL}/website`,{
-      url:website.url
-    },{withCredentials:true})
-
-    const refreshed = await axios.get<{ websites: WebsiteFromAPI[] }>(
-      `${BACKEND_URL}/websites`,
+  const addWebsite = async ({ url }: { url: string }) => {
+    await axios.post(
+      `${BACKEND_URL}/website`,
+      { url },
       { withCredentials: true }
     );
-    setWebsites(mapWebsites(refreshed.data.websites));
+    await fetchWebsite(); // refresh state
     setIsModalOpen(false);
   };
+
 
   // Delete website TODO add be route
   const deleteWebsite = async (id: string) => {
@@ -113,8 +110,8 @@ export default function Dashboard()
     setWebsites(websites.filter(site => site.id !== id));
   };
 
-  const upSites = websites.filter(site => site.status === 'Up').length;
-  const downSites = websites.filter(site => site.status === 'Down').length;
+  const upSites = websites.filter(site => site.indiaStatus === 'Up').length;
+  const downSites = websites.filter(site => site.indiaStatus === 'Down').length;
 
   return (
     <div className="min-h-screen bg-black">

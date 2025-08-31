@@ -1,7 +1,10 @@
 export type Website = {
   id: string;
   url: string;
-  status: string;
-  responseTime: number;
-  lastChecked: Date;
+  indiaStatus: string;
+  usStatus: string;
+  indiaResponse: number;
+  usResponse: number;
+  lastCheckedIndia: Date | null;
+  lastCheckedUS: Date | null;
 };
