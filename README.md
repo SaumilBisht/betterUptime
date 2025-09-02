@@ -53,17 +53,26 @@ docker run -d \
 
 # Run backend
 docker run -d \
-  --name backend \
+  --name api \
   --network my_app \
   -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres \
-  -p 8080:8080 \
-  my-backend
+  --env-file ./apps/api/.env \
+  -p 3001:3001 \
+  uptime-api
 
 
-# Run WebSocket server
+# Run Pusher server
 docker run -d \
   --name ws \
   --network my_app \
+  -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres \
+  -p 8081:8081 \
+  my-ws
+# Run WORKER server
+docker run -d \
+  --name ws \
+  --network my_app \
+  -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres \
   -p 8081:8081 \
   my-ws
 
