@@ -8,7 +8,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "db:generate":"cd packages/db && bun run migrate && cd ../..",
-    "start:fe":"cd apps/frontend && bun run start",
+    "start:fe":"cd apps/frontend && bun run build && bun run start",
     "start:api":"cd apps/api && bun index.ts",
     "start:pusher":"cd apps/pusher && bun index.ts"
   },

@@ -21,3 +21,59 @@
 
 6. Frontend Start
   -> bun run dev
+
+## DOCKER STEPS:
+
+STEP 0: CLONE REPO
+  -> git clone https://github.com/SaumilBisht/betterUptime
+  -> cd betterUptime
+
+STEP 1: CREATE NETWORK
+  -> docker network create my_app  
+
+STEP 2: RUN POSTGRES & REDIS
+  -> docker run -d -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres
+  -> docker run -d -p 6379:6379 redis
+
+STEP 3: BUILD IMAGES
+  docker build -t uptime-fe -f docker/Dockerfile.fe .
+  docker build -t uptime-api -f docker/Dockerfile.api .
+  docker build -t uptime-pusher -f docker/Dockerfile.pusher .
+  docker build -t uptime-worker -f docker/Dockerfile.worker .
+
+STEP 4: RUN EACH CONTAINER
+
+# Run frontend
+docker run -d \
+  --name frontend \
+  --network my_app \
+  -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres \
+  -p 3000:3000 \
+  my-frontend
+
+# Run backend
+docker run -d \
+  --name backend \
+  --network my_app \
+  -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres \
+  -p 8080:8080 \
+  my-backend
+
+
+# Run WebSocket server
+docker run -d \
+  --name ws \
+  --network my_app \
+  -p 8081:8081 \
+  my-ws
+
+* For migrating database:
+  - docker exec -it frontend sh
+  - cd packages/db
+  - bunx prisma migrate dev --name init
+
+  (exit to move out)
+
+* To remove all container:
+    docker stop $(docker ps -q)
+    docker rm $(docker ps -aq)
