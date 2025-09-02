@@ -7,11 +7,11 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "db:generate":"cd packages/db && bun run migrate && cd ../..",
-    "start:fe":"cd apps/frontend && bun run build && bun run start",
-    "start:api":"cd apps/api && bun index.ts",
-    "start:pusher":"cd apps/pusher && bun index.ts",
-    "start:worker":"cd apps/worker && bun index.ts"
+    "db:generate": "cd packages/db && bun run migrate && cd ../..",
+    "start:fe": "cd apps/frontend && bun run start",
+    "start:api": "cd apps/api && bun index.ts",
+    "start:pusher": "cd apps/pusher && bun index.ts",
+    "start:worker": "cd apps/worker && bun index.ts"
   },
   "devDependencies": {
     "prettier": "^3.6.2",
@@ -27,6 +27,7 @@
     "packages/*"
   ],
   "dependencies": {
-    "axios": "^1.11.0"
+    "axios": "^1.11.0",
+    "lightningcss": "1.22.1"
   }
 }
