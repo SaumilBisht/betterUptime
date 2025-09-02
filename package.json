@@ -10,7 +10,8 @@
     "db:generate":"cd packages/db && bun run migrate && cd ../..",
     "start:fe":"cd apps/frontend && bun run build && bun run start",
     "start:api":"cd apps/api && bun index.ts",
-    "start:pusher":"cd apps/pusher && bun index.ts"
+    "start:pusher":"cd apps/pusher && bun index.ts",
+    "start:worker":"cd apps/worker && bun index.ts"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

@@ -47,9 +47,8 @@ STEP 4: RUN EACH CONTAINER
 docker run -d \
   --name frontend \
   --network my_app \
-  -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres \
   -p 3000:3000 \
-  my-frontend
+  uptime-fe
 
 # Run backend
 docker run -d \
@@ -63,18 +62,29 @@ docker run -d \
 
 # Run Pusher server
 docker run -d \
-  --name ws \
+  --name pusher \
   --network my_app \
   -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres \
-  -p 8081:8081 \
-  my-ws
+  uptime-pusher
+
 # Run WORKER server
 docker run -d \
-  --name ws \
+  --name worker1 \
   --network my_app \
   -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres \
-  -p 8081:8081 \
-  my-ws
+  --env REGION_ID=9a0511a5-731b-4892-8d70-4108baa29362 \
+  --env WORKER_ID=1 \
+  --env-file ./apps/worker/.env \
+  uptime-worker1
+
+docker run -d \
+  --name worker2 \
+  --network my_app \
+  -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres \
+  --env REGION_ID=3b6ee783-3a33-47e8-86e4-3b5d6dd0336a \
+  --env WORKER_ID=2 \
+  --env-file ./apps/worker/.env \
+  uptime-worker2
 
 * For migrating database:
   - docker exec -it frontend sh
