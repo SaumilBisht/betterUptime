@@ -32,8 +32,8 @@ STEP 1: CREATE NETWORK
   -> docker network create my_app  
 
 STEP 2: RUN POSTGRES & REDIS
-  -> docker run -d -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres
-  -> docker run -d -p 6379:6379 redis
+  -> docker run -d --name postgres -e  POSTGRES_PASSWORD=postgres --network my_app -p 5432:5432 postgres
+  -> docker run -d --network my_app -p 6379:6379 redis
 
 STEP 3: BUILD IMAGES
   docker build -t uptime-fe -f docker/Dockerfile.fe .
@@ -54,10 +54,8 @@ docker run -d \
 docker run -d \
   --name api \
   --network my_app \
-  -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres \
   --env-file ./apps/api/.env \
-  -p 3001:3001 \
-  uptime-api
+  -p 3001:3001 uptime-api
 
 
 # Run Pusher server
@@ -89,7 +87,7 @@ docker run -d \
 * For migrating database:
   - docker exec -it frontend sh
   - cd packages/db
-  - bunx prisma migrate dev --name init
+  - bunx prisma migrate 
 
   (exit to move out)
 
