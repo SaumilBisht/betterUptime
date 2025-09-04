@@ -71,20 +71,22 @@ docker run -d \
   --name worker1 \
   --network my_app \
   -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres \
-  --env REGION_ID=9a0511a5-731b-4892-8d70-4108baa29362 \
-  --env WORKER_ID=1 \
+  -e REDIS_URL=redis://redis:6379 \
+  -e REGION_ID=9a0511a5-731b-4892-8d70-4108baa29362 \
+  -e WORKER_ID=1 \
   --env-file ./apps/worker/.env \
-  uptime-worker1
+  uptime-worker
 
 docker run -d \
   --name worker2 \
   --network my_app \
   -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres \
-  --env REGION_ID=3b6ee783-3a33-47e8-86e4-3b5d6dd0336a \
-  --env WORKER_ID=2 \
+  -e REDIS_URL=redis://redis:6379 \
+  -e REGION_ID=3b6ee783-3a33-47e8-86e4-3b5d6dd0336a \
+  -e WORKER_ID=2 \
   --env-file ./apps/worker/.env \
-  uptime-worker2
-
+  uptime-worker
+  
 * For migrating database:
   - docker exec -it frontend sh
   - cd packages/db
