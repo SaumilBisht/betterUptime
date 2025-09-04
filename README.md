@@ -63,6 +63,7 @@ docker run -d \
   --name pusher \
   --network my_app \
   -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres \
+  -e REDIS_URL=redis://redis:6379 \
   uptime-pusher
 
 # Run WORKER server

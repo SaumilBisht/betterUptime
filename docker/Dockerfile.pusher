@@ -1,8 +1,14 @@
 FROM oven/bun:1
 WORKDIR /usr/src/app
 RUN apt-get update -y && apt-get install -y openssl
-COPY package.json bun.lock turbo.json ./
+COPY ./package.json ./package.json
+COPY ./bun.lock ./bun.lock
+COPY ./turbo.json ./turbo.json
+
+COPY packages/db/package.json packages/db/
+COPY packages/redisstream/package.json packages/redisstream/
+COPY apps/pusher/package.json apps/pusher/
 RUN bun install
-COPY ./apps/pusher ./apps/pusher
-COPY packages ./packages
+
+COPY . .
 CMD ["bun","run","start:pusher"]
