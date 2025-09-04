@@ -97,3 +97,10 @@ docker run -d \
 * To remove all container:
     docker stop $(docker ps -q)
     docker rm $(docker ps -aq)
+
+
+## DOCKER-COMPOSE STEPS
+  -> docker compose up --build (-d if want in detach)
+  To stop and remove all containers, 
+  -> docker compose down
+  -> docker compose down --volumes --remove-orphans 
