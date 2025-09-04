@@ -33,7 +33,7 @@ STEP 1: CREATE NETWORK
 
 STEP 2: RUN POSTGRES & REDIS
   -> docker run -d --name postgres -e  POSTGRES_PASSWORD=postgres --network my_app -p 5432:5432 postgres
-  -> docker run -d --network my_app -p 6379:6379 redis
+  -> docker run -d --name redis --network my_app -p 6379:6379 redis
 
 STEP 3: BUILD IMAGES
   docker build -t uptime-fe -f docker/Dockerfile.fe .

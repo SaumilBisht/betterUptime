@@ -57,10 +57,12 @@ app.post("/user/signup",async(req,res)=>{
     });
   
     const transporter = nodemailer.createTransport({
-      service: "Gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true, // SSL
       auth: {
         user: process.env.USER_EMAIL,
-        pass: process.env.USER_PASSWORD,  
+        pass: process.env.USER_PASSWORD,
       },
     });
     console.log("reached 3")
