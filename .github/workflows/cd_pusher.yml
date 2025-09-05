@@ -23,5 +23,5 @@ jobs:
           context: .
           file: ./docker/Dockerfile.pusher
           push: true
-          tags: saumilbisht/bUptime-pusher:${{ github.sha }}
+          tags: saumilbisht/buptime-pusher:${{ github.sha }}
 
