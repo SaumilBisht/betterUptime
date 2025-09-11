@@ -22,4 +22,6 @@ jobs:
           context: .
           file: ./docker/Dockerfile.fe
           push: true
-          tags: saumilbisht/buptime-fe:${{ github.sha }}
+          tags: |
+            saumilbisht/buptime-fe:${{ github.sha }}
+            saumilbisht/buptime-fe:latest
