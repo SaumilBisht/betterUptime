@@ -29,6 +29,7 @@ app.post("/user/signup",async(req,res)=>{
       error:"Invalid inputs"
     })
   }
+  console.log("Signup request received", req.body);
   const {email}=req.body;
   try{
     const existingUser = await prisma.user.findUnique({
