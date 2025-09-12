@@ -15,7 +15,9 @@ export default function Signup() {
   
     try 
     {
-      const res = await axios.post(`${BACKEND_URL}/user/signup`, { email });
+      const res = await axios.post(`${BACKEND_URL}/user/signup`, { email }, {
+      withCredentials: true 
+    });
       setIsSubmitted(true); 
     } 
     catch (err: any) {
