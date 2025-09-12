@@ -5,4 +5,4 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const BACKEND_URL="http://uptime.saumilbisht.in";
+export const BACKEND_URL="https://uptime.saumilbisht.in";
