@@ -15,9 +15,12 @@ app.use(cookieParser())
 app.use(express.json());
 
 app.use(cors({
-  origin: "http://localhost:3000",//change after prod
+  origin: "https://uptimewatch.vercel.app",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
+app.options("*", cors());
 
 app.post("/user/signup",async(req,res)=>{
   const data=SignUpInput.safeParse(req.body);
