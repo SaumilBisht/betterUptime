@@ -17,8 +17,4 @@ COPY scripts/wait-for-postgres.sh /usr/local/bin/wait-for-postgres.sh
 RUN chmod +x /usr/local/bin/wait-for-postgres.sh
 EXPOSE 3001
 
-CMD ["sh", "-c", "cd packages/db \
-  && bunx prisma migrate deploy --schema=prisma/schema.prisma \
-  && bun run seed \
-  && cd ../.. \
-  && bun run start:api"]
+CMD ["bun", "run", "start:api"]
