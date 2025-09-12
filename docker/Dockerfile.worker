@@ -5,7 +5,7 @@ COPY package.json bun.lock turbo.json ./
 
 COPY packages/db/package.json packages/db/
 COPY packages/redisstream/package.json packages/redisstream/
-COPY apps/pusher/package.json apps/pusher/
+COPY apps/worker/package.json apps/worker/
 
 RUN bun install
 COPY . .
