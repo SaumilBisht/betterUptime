@@ -20,7 +20,6 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
-app.options("*", cors());
 
 app.post("/user/signup",async(req,res)=>{
   const data=SignUpInput.safeParse(req.body);
