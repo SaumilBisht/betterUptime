@@ -73,11 +73,12 @@ app.post("/user/signup",async(req,res)=>{
     
     const verifyUrl = `${process.env.BACKEND_URL}/verify?token=${token}&email=${email}`;
     
-    await transporter.sendMail({
+    const hung=await transporter.sendMail({
       to: email,
       subject: "Verify your BetterUptime account",
       html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email. Link expires in 30 minutes.</p>`,
     });
+    console.log(hung);
     console.log("reached 4")
   }
   catch(e){
