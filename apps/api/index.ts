@@ -61,8 +61,8 @@ app.post("/user/signup",async(req,res)=>{
   
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // STARTTLS
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.USER_EMAIL,
         pass: process.env.USER_PASSWORD,
@@ -73,12 +73,21 @@ app.post("/user/signup",async(req,res)=>{
     
     const verifyUrl = `${process.env.BACKEND_URL}/verify?token=${token}&email=${email}`;
     
-    const hung=await transporter.sendMail({
-      to: email,
-      subject: "Verify your BetterUptime account",
-      html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email. Link expires in 30 minutes.</p>`,
-    });
-    console.log(hung);
+  try {
+    await Promise.race([
+        transporter.sendMail({
+        to: email,
+        subject: "Verify your BetterUptime account",
+        html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email. Link expires in 30 minutes.</p>`,
+      }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("SMTP timeout")), 10000)),
+        ]);
+        res.json({ message: "Verification link sent successfully" });
+    } 
+    catch (e) {
+      console.error("Email send error:", e);
+      res.status(502).json({ error: "Failed to send email" });
+    }
     console.log("reached 4")
   }
   catch(e){
