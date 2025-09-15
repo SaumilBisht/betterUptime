@@ -12,6 +12,8 @@ import {addMinutes} from "date-fns"
 import cookieParser from "cookie-parser";
 import sgMail from '@sendgrid/mail';
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+console.log("SendGrid API key loaded:", !!process.env.SENDGRID_API_KEY);
+console.log("SendGrid Domain loaded:", !!process.env.SENDGRID_DOMAIN);
 const app=express();
 app.use(cookieParser())
 app.use(express.json());
@@ -63,12 +65,19 @@ app.post("/user/signup",async(req,res)=>{
     
     const verifyUrl = `${process.env.BACKEND_URL}/verify?token=${token}&email=${email}`;
     
-    await sgMail.send({
-      to: email,
-      from: `no-reply@${process.env.SENDGRID_DOMAIN || "uptime.saumilbisht.in"}`, 
-      subject: "Verify your BetterUptime account",
-      html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email. Link expires in 30 minutes.</p>`,
-    });
+    try 
+    {
+      const response = await sgMail.send({
+        to: email,
+        from: `no-reply@${process.env.SENDGRID_DOMAIN}`,
+        subject: "Verify your BetterUptime account",
+        html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email. Link expires in 30 minutes.</p>`,
+      });
+      console.log("SendGrid response:", response[0].statusCode, response[0].headers);
+    } catch (err: any) 
+    {
+      console.error("SendGrid error:", err.response?.body || err.message);
+    }
 
     return res.json({ message: "Verification link sent successfully" });
   } catch (e) {
