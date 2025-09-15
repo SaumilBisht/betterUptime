@@ -153,8 +153,8 @@ app.post("/user/set-password", async (req, res) => {
     const token = jwt.sign({ userId: user.id }, process.env.JWT_PASS!, { expiresIn: "1h" });
     res.cookie("auth", token, { 
       httpOnly: true, 
-      secure: false,       //true in prod
-      sameSite: "lax",    //none in prod
+      secure: true,      
+      sameSite: "none",    
       maxAge: 60 * 60 * 1000,
     });
 
@@ -188,8 +188,8 @@ app.post("/user/signin", async (req, res) => {
   
   res.cookie("auth", token, { 
     httpOnly: true, 
-    secure: false,       //true in prod
-    sameSite: "lax",    //none in prod
+    secure: true,      
+    sameSite: "none",    
     maxAge: 60 * 60 * 1000,
   });
 
