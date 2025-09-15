@@ -12,6 +12,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.5",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
