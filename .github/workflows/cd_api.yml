@@ -34,6 +34,8 @@ jobs:
           git clone https://github.com/SaumilBisht/UptimeOps.git
           cd UptimeOps/api
           sed -i "s|image: saumilbisht/buptime-api:.*|image: saumilbisht/buptime-api:${{ github.sha }}|" manifest.yml
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
           git add manifest.yml
           git commit -m "Update API image to ${{ github.sha }}"
           git push https://${PAT}@github.com/SaumilBisht/UptimeOps.git main
