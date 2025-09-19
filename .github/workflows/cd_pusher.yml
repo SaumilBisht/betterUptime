@@ -26,3 +26,16 @@ jobs:
           tags: |
             saumilbisht/buptime-pusher:${{ github.sha }}
             saumilbisht/buptime-pusher:latest
+
+      - name: Update uptimeOps repo
+        env:
+          PAT: ${{secrets.PAT}}
+        run: |
+          git clone https://github.com/SaumilBisht/UptimeOps.git
+          cd UptimeOps/pusher
+          sed -i "s|image: saumilbisht/buptime-pusher:.*|image: saumilbisht/buptime-pusher:${{ github.sha }}|" manifest.yml
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add manifest.yml
+          git commit -m "Update Pusher image to ${{ github.sha }}"
+          git push https://${PAT}@github.com/SaumilBisht/UptimeOps.git main

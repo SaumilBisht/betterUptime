@@ -27,3 +27,16 @@ jobs:
             saumilbisht/buptime-worker:${{ github.sha }}
             saumilbisht/buptime-worker:latest
 
+      - name: Update uptimeOps repo
+        env:
+          PAT: ${{secrets.PAT}}
+        run: |
+          git clone https://github.com/SaumilBisht/UptimeOps.git
+          cd UptimeOps/worker
+          sed -i "s|image: saumilbisht/buptime-worker:.*|image: saumilbisht/buptime-worker:${{ github.sha }}|" manifest.yml
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add manifest.yml
+          git commit -m "Update worker image to ${{ github.sha }}"
+          git push https://${PAT}@github.com/SaumilBisht/UptimeOps.git main
+
