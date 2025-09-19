@@ -26,3 +26,14 @@ jobs:
           tags: |
             saumilbisht/buptime-api:${{ github.sha }}
             saumilbisht/buptime-api:latest
+
+      - name: Update uptimeOps repo
+        env:
+          PAT: ${{secrets.PAT}}
+        run: |
+          git clone https://github.com/SaumilBisht/UptimeOps.git
+          cd UptimeOps/api
+          sed -i "s|image: saumilbisht/buptime-api:.*|image: saumilbisht/buptime-api:${{ github.sha }}|" manifest.yml
+          git add manifest.yml
+          git commit -m "Update API image to ${{ github.sha }}"
+          git push https://${PAT}@github.com/SaumilBisht/UptimeOps.git main
